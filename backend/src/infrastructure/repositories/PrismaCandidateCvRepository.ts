@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { ICandidateCvRepository } from '../../domain/repositories/ICandidateCvRepository';
-import { CandidateCv } from '../../domain/models/CandidateCv';
+import { CandidateCv, CandidateCvData } from '../../domain/models/CandidateCv';
 
 export class PrismaCandidateCvRepository implements ICandidateCvRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -12,11 +12,11 @@ export class PrismaCandidateCvRepository implements ICandidateCvRepository {
         storageKey: cv.storageKey,
         filename: cv.filename,
         contentType: cv.contentType,
-        size: cv.size,
+        sizeBytes: cv.sizeBytes,
         isActive: cv.isActive,
       },
     });
-    return new CandidateCv(record);
+    return new CandidateCv(record as unknown as CandidateCvData);
   }
 
   async deactivateForCandidate(candidateId: number): Promise<void> {

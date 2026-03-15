@@ -41,6 +41,7 @@ export class CandidateController {
           source: candidate.source ?? null,
           notes: candidate.notes ?? null,
           createdAt: candidate.createdAt,
+          updatedAt: candidate.updatedAt,
           createdBy: candidate.createdBy,
           educations: candidate.educations,
           workExperiences: candidate.workExperiences,
@@ -49,7 +50,7 @@ export class CandidateController {
                 id: cv.id,
                 filename: cv.filename,
                 contentType: cv.contentType,
-                size: cv.size,
+                sizeBytes: Number(cv.sizeBytes),
                 uploadedAt: cv.uploadedAt,
               }
             : null,
@@ -82,6 +83,7 @@ export class CandidateController {
           source: candidate.source ?? null,
           notes: candidate.notes ?? null,
           createdAt: candidate.createdAt,
+          updatedAt: candidate.updatedAt,
           createdBy: candidate.createdBy,
           educations: candidate.educations,
           workExperiences: candidate.workExperiences,
@@ -90,7 +92,7 @@ export class CandidateController {
                 id: candidate.currentCv.id,
                 filename: candidate.currentCv.filename,
                 contentType: candidate.currentCv.contentType,
-                size: candidate.currentCv.size,
+                sizeBytes: Number(candidate.currentCv.sizeBytes),
                 uploadedAt: candidate.currentCv.uploadedAt,
               }
             : null,
@@ -129,7 +131,7 @@ export class CandidateController {
           id: cv.id,
           filename: cv.filename,
           contentType: cv.contentType,
-          size: cv.size,
+          sizeBytes: Number(cv.sizeBytes),
           uploadedAt: cv.uploadedAt,
         },
       });

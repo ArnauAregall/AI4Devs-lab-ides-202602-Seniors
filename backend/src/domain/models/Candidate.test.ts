@@ -58,6 +58,33 @@ describe('Candidate', () => {
       expect(candidate.educations).toHaveLength(1);
       expect(candidate.workExperiences).toHaveLength(1);
     });
+
+    it('should populate updatedAt from data when provided', () => {
+      const updatedAt = new Date('2025-06-01T10:00:00.000Z');
+      const candidate = new Candidate({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'jane@example.com',
+        createdBy: 'recruiter-1',
+        updatedAt,
+      });
+
+      expect(candidate.updatedAt).toEqual(updatedAt);
+    });
+
+    it('should default updatedAt to current time when not provided', () => {
+      const before = new Date();
+      const candidate = new Candidate({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'jane@example.com',
+        createdBy: 'recruiter-1',
+      });
+      const after = new Date();
+
+      expect(candidate.updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(candidate.updatedAt.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
   });
 });
 
@@ -100,14 +127,14 @@ describe('WorkExperience', () => {
 });
 
 describe('CandidateCv', () => {
-  it('should create a CV metadata record', () => {
+  it('should create a CV metadata record with sizeBytes as bigint', () => {
     const cv = new CandidateCv({
       id: 1,
       candidateId: 10,
       storageKey: 'uploads/2024/cv-abc123.pdf',
       filename: 'my-cv.pdf',
       contentType: 'application/pdf',
-      size: 204800,
+      sizeBytes: 204800,
       uploadedAt: new Date('2024-06-01'),
       isActive: true,
     });
@@ -115,7 +142,18 @@ describe('CandidateCv', () => {
     expect(cv.id).toBe(1);
     expect(cv.storageKey).toBe('uploads/2024/cv-abc123.pdf');
     expect(cv.contentType).toBe('application/pdf');
-    expect(cv.size).toBe(204800);
+    expect(cv.sizeBytes).toBe(BigInt(204800));
     expect(cv.isActive).toBe(true);
+  });
+
+  it('should accept bigint directly for sizeBytes', () => {
+    const cv = new CandidateCv({
+      storageKey: 'cvs/test.pdf',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: BigInt(1048576),
+    });
+
+    expect(cv.sizeBytes).toBe(BigInt(1048576));
   });
 });

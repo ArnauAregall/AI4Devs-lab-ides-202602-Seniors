@@ -12,6 +12,9 @@
         "prisma:generate": "npx prisma generate",
         "start:prod": "npm run build && npm start"
     },
+    "prisma": {
+        "seed": "ts-node --transpile-only prisma/seed.ts"
+    },
     "keywords": [],
     "author": "",
     "license": "ISC",

@@ -4,7 +4,7 @@ export interface CandidateCvData {
   storageKey: string;
   filename: string;
   contentType: string;
-  size: number;
+  sizeBytes: bigint | number;
   uploadedAt?: Date | string;
   isActive?: boolean;
 }
@@ -15,7 +15,7 @@ export class CandidateCv {
   storageKey: string;
   filename: string;
   contentType: string;
-  size: number;
+  sizeBytes: bigint;
   uploadedAt: Date;
   isActive: boolean;
 
@@ -25,8 +25,8 @@ export class CandidateCv {
     this.storageKey = data.storageKey;
     this.filename = data.filename;
     this.contentType = data.contentType;
-    this.size = data.size;
-    this.uploadedAt = data.uploadedAt ? new Date(data.uploadedAt) : new Date();
+    this.sizeBytes = BigInt(data.sizeBytes);
+    this.uploadedAt = data.uploadedAt ? new Date(data.uploadedAt as string) : new Date();
     this.isActive = data.isActive ?? true;
   }
 }

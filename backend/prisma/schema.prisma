@@ -14,22 +14,24 @@ model User {
 }
 
 model Candidate {
-  id            Int              @id @default(autoincrement())
-  firstName     String           @db.VarChar(100)
-  lastName      String           @db.VarChar(100)
-  email         String           @unique @db.VarChar(255)
-  phone         String?          @db.VarChar(50)
-  address       String?          @db.VarChar(255)
-  source        String?          @db.VarChar(100)
-  notes         String?          @db.VarChar(2000)
-  createdAt     DateTime         @default(now())
-  createdBy     String           @db.VarChar(255)
-  educations    Education[]
+  id              Int              @id @default(autoincrement())
+  firstName       String           @db.VarChar(100)
+  lastName        String           @db.VarChar(100)
+  email           String           @unique @db.VarChar(255)
+  phone           String?          @db.VarChar(50)
+  address         String?          @db.VarChar(255)
+  source          String?          @db.VarChar(100)
+  notes           String?          @db.VarChar(2000)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdBy       String           @db.VarChar(255)
+  educations      Education[]
   workExperiences WorkExperience[]
-  cvs           CandidateCv[]
-  currentCvId   Int?             @unique
-  currentCv     CandidateCv?     @relation("CurrentCv", fields: [currentCvId], references: [id])
+  cvs             CandidateCv[]
+  currentCvId     Int?             @unique
+  currentCv       CandidateCv?     @relation("CurrentCv", fields: [currentCvId], references: [id])
 
+  @@index([lastName])
   @@map("candidates")
 }
 
@@ -42,7 +44,8 @@ model Education {
   endDate     DateTime?
   candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
-  @@map("educations")
+  @@index([candidateId])
+  @@map("candidate_educations")
 }
 
 model WorkExperience {
@@ -55,20 +58,23 @@ model WorkExperience {
   description String?   @db.VarChar(2000)
   candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
-  @@map("work_experiences")
+  @@index([candidateId])
+  @@map("candidate_work_experiences")
 }
 
 model CandidateCv {
-  id              Int       @id @default(autoincrement())
-  candidateId     Int
-  storageKey      String    @db.VarChar(500)
-  filename        String    @db.VarChar(255)
-  contentType     String    @db.VarChar(100)
-  size            Int
-  uploadedAt      DateTime  @default(now())
-  isActive        Boolean   @default(true)
-  candidate       Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  currentCvFor    Candidate? @relation("CurrentCv")
+  id           Int        @id @default(autoincrement())
+  candidateId  Int
+  storageKey   String     @db.VarChar(500)
+  filename     String     @db.VarChar(255)
+  contentType  String     @db.VarChar(100)
+  // CHECK (size_bytes >= 0) enforced at DB level in migration
+  sizeBytes    BigInt     @map("size_bytes")
+  uploadedAt   DateTime   @default(now())
+  isActive     Boolean    @default(true)
+  candidate    Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  currentCvFor Candidate? @relation("CurrentCv")
 
+  @@index([candidateId])
   @@map("candidate_cvs")
 }

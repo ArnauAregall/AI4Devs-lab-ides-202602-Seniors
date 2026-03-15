@@ -23,7 +23,7 @@ describe('PrismaCandidateCvRepository - save', () => {
       storageKey: 'uploads/cv.pdf',
       filename: 'cv.pdf',
       contentType: 'application/pdf',
-      size: 102400,
+      sizeBytes: BigInt(102400),
       uploadedAt: new Date('2024-03-01'),
       isActive: true,
     };
@@ -34,13 +34,14 @@ describe('PrismaCandidateCvRepository - save', () => {
       storageKey: 'uploads/cv.pdf',
       filename: 'cv.pdf',
       contentType: 'application/pdf',
-      size: 102400,
+      sizeBytes: 102400,
     });
 
     const result = await repository.save(cv);
 
     expect(result).toBeInstanceOf(CandidateCv);
     expect(result.id).toBe(5);
+    expect(result.sizeBytes).toBe(BigInt(102400));
     expect(mockPrisma.candidateCv.create).toHaveBeenCalledTimes(1);
   });
 });

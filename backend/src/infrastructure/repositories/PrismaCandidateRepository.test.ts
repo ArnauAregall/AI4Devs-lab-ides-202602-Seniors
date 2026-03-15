@@ -20,6 +20,7 @@ const candidateRow = {
   source: null,
   notes: null,
   createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-06-01'),
   createdBy: 'recruiter-1',
   currentCvId: null,
   educations: [],
@@ -38,6 +39,7 @@ describe('PrismaCandidateRepository - findById', () => {
     expect(result).toBeInstanceOf(Candidate);
     expect(result?.id).toBe(1);
     expect(result?.email).toBe('jane@example.com');
+    expect(result?.updatedAt).toEqual(new Date('2024-06-01'));
     expect(mockPrisma.candidate.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: 1 } })
     );

@@ -90,7 +90,7 @@ export class CandidateService {
       storageKey: stored.storageKey,
       filename: stored.filename,
       contentType: stored.contentType,
-      size: stored.size,
+      sizeBytes: stored.size,
     });
 
     const savedCv = await this.cvRepo.save(cv);

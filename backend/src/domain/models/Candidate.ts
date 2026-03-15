@@ -12,6 +12,7 @@ export interface CandidateData {
   source?: string;
   notes?: string;
   createdAt?: Date | string;
+  updatedAt?: Date | string;
   createdBy: string;
   currentCvId?: number;
   educations?: EducationData[];
@@ -30,6 +31,7 @@ export class Candidate {
   source?: string;
   notes?: string;
   createdAt: Date;
+  updatedAt: Date;
   createdBy: string;
   currentCvId?: number;
   educations: Education[];
@@ -46,7 +48,8 @@ export class Candidate {
     this.address = data.address;
     this.source = data.source;
     this.notes = data.notes;
-    this.createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+    this.createdAt = data.createdAt ? new Date(data.createdAt as string) : new Date();
+    this.updatedAt = data.updatedAt ? new Date(data.updatedAt as string) : new Date();
     this.createdBy = data.createdBy;
     this.currentCvId = data.currentCvId;
     this.educations = (data.educations ?? []).map((e) => new Education(e));

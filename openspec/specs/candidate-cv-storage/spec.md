@@ -21,11 +21,11 @@ The system SHALL enforce a configurable maximum CV file size and SHALL reject up
 - **THEN** the system SHALL reject the request with `413 Payload Too Large` and an error code indicating that the file size limit was exceeded
 
 ### Requirement: Store CV in secure object storage
-The system SHALL store CV files in secure object storage and SHALL persist only metadata and an internal reference to the storage location in the primary database.
+The system SHALL store CV files in secure object storage and SHALL persist only metadata and an internal reference to the storage location in the primary database. The persisted CV metadata SHALL include `sizeBytes` as a positive integer value representing the file size in bytes.
 
 #### Scenario: Successful CV storage
 - **WHEN** a recruiter uploads a supported CV file within the size limit
-- **THEN** the system SHALL store the file in object storage, persist a storage key and metadata (filename, content type, size, uploadedAt), and associate the CV with the candidate
+- **THEN** the system SHALL store the file in object storage, persist a storage key and metadata (filename, content type, sizeBytes, uploadedAt) with `sizeBytes` as a non-negative integer, and associate the CV with the candidate
 
 ### Requirement: Link a single current CV per candidate
 The system SHALL maintain at most one current CV per candidate and SHALL update the stored reference when a CV is replaced.
@@ -35,11 +35,11 @@ The system SHALL maintain at most one current CV per candidate and SHALL update 
 - **THEN** the system SHALL store the new CV, update the candidate to reference the new CV, and optionally mark the previous CV as superseded while preventing it from being used as the active CV
 
 ### Requirement: CV metadata exposure
-The system SHALL expose only CV metadata through candidate read APIs and SHALL NOT expose direct public URLs for CV downloads.
+The system SHALL expose only CV metadata through candidate read APIs and SHALL NOT expose direct public URLs for CV downloads. The metadata object SHALL include `sizeBytes` (in bytes) instead of a generic `size` field.
 
 #### Scenario: Return CV metadata on candidate read
 - **WHEN** a recruiter retrieves a candidate that has an associated CV
-- **THEN** the system SHALL include a CV metadata object (identifier, filename, content type, size, and uploadedAt) in the candidate response and SHALL NOT include a publicly accessible document URL
+- **THEN** the system SHALL include a CV metadata object (identifier, filename, content type, sizeBytes, and uploadedAt) in the candidate response and SHALL NOT include a publicly accessible document URL
 
 ### Requirement: Observability for CV operations
 The system SHALL log and collect metrics for CV upload operations, including success and failure rates.

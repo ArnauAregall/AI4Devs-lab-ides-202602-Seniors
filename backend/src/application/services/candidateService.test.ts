@@ -68,7 +68,7 @@ describe('CandidateService - createCandidate', () => {
         storageKey: 'cvs/uuid.pdf',
         filename: 'my-cv.pdf',
         contentType: 'application/pdf',
-        size: 1024,
+        sizeBytes: 1024,
       });
       mockCvRepo.save.mockResolvedValue(savedCv);
       mockCvRepo.linkCurrentCvToCandidate.mockResolvedValue();
@@ -144,7 +144,7 @@ describe('CandidateService - uploadCvForCandidate', () => {
       storageKey: 'cvs/new-uuid.pdf',
       filename: 'new-cv.pdf',
       contentType: 'application/pdf',
-      size: 2048,
+      sizeBytes: 2048,
     });
     mockCvRepo.save.mockResolvedValue(newCv);
     mockCvRepo.deactivateForCandidate.mockResolvedValue();

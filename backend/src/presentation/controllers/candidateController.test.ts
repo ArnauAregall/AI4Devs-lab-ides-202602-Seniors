@@ -39,7 +39,7 @@ const savedCv = new CandidateCv({
   storageKey: 'cvs/uuid.pdf',
   filename: 'cv.pdf',
   contentType: 'application/pdf',
-  size: 1024,
+  sizeBytes: 1024,
 });
 
 describe('CandidateController - createCandidate', () => {
