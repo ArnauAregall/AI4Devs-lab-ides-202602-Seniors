@@ -11,9 +11,13 @@ The frontend API client SHALL expose a `createCandidate` function that accepts t
 - **WHEN** `createCandidate` is called with valid candidate fields and a CV `File` object
 - **THEN** the function SHALL submit a `POST /api/v1/candidates` request with `Content-Type: multipart/form-data`, SHALL include the CV file as the `cvFile` part, and SHALL return the created candidate object on a `201` response
 
-#### Scenario: API client attaches the Authorization header
-- **WHEN** `createCandidate` is called
-- **THEN** the HTTP request SHALL include an `Authorization: Bearer <token>` header
+#### Scenario: API client attaches the Authorization header from in-memory store
+- **WHEN** any function in the API client is called while a valid in-memory access token exists
+- **THEN** the outgoing HTTP request SHALL include the header `Authorization: Bearer <token>` where the token value is read from the in-memory auth store
+
+#### Scenario: API client does not fall back to REACT_APP_API_TOKEN
+- **WHEN** `REACT_APP_API_TOKEN` is set in the environment but no in-memory token is present
+- **THEN** the API client SHALL NOT attach that value as a Bearer token; instead the request is sent without an `Authorization` header (which the server rejects with `401`)
 
 ### Requirement: API client provides a typed function to retrieve a candidate by ID
 The frontend API client SHALL expose a `getCandidateById` function that fetches `GET /api/v1/candidates/{id}` and returns a typed candidate object.
@@ -36,6 +40,17 @@ When the API returns a non-2xx response, the client SHALL parse the response bod
 #### Scenario: Generic server error response is parsed into ApiError
 - **WHEN** the API responds with a `5xx` status
 - **THEN** the client SHALL throw an `ApiError` with the corresponding status code and a generic error code
+
+### Requirement: API client performs a single silent token refresh on 401 responses
+When any API function returns a `401 Unauthorized` response, the client SHALL call `POST /api/v1/auth/refresh` exactly once. If the refresh returns a new access token, the original request SHALL be retried with the new token and the caller receives the successful result. If the refresh also returns `401`, the client SHALL throw an `ApiError` with `status: 401` and SHALL NOT retry further.
+
+#### Scenario: 401 triggers one silent refresh and retries original request
+- **WHEN** a candidate API call returns `401` and the subsequent `POST /api/v1/auth/refresh` returns a new access token
+- **THEN** the original request SHALL be retried with the new token and the caller SHALL receive the successful result transparently
+
+#### Scenario: Failed refresh after 401 throws ApiError with status 401
+- **WHEN** a candidate API call returns `401` and the subsequent `POST /api/v1/auth/refresh` also returns `401`
+- **THEN** the client SHALL throw an `ApiError` with `status: 401` and SHALL NOT attempt any further retries
 
 ### Requirement: API client base URL is configurable via environment variable
 The API client SHALL read the backend base URL from the `REACT_APP_API_URL` environment variable and SHALL prepend it to all request paths.

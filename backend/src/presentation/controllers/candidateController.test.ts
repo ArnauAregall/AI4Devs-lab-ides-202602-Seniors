@@ -51,7 +51,7 @@ describe('CandidateController - createCandidate', () => {
     const req = {
       body: { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com' },
       file: undefined,
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 
@@ -69,7 +69,7 @@ describe('CandidateController - createCandidate', () => {
     const req = {
       body: { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com' },
       file: { buffer: Buffer.from('pdf'), originalname: 'cv.pdf', mimetype: 'application/pdf', size: 1024 },
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 
@@ -92,7 +92,7 @@ describe('CandidateController - createCandidate', () => {
         workExperience: JSON.stringify([{ company: 'Acme', title: 'Engineer' }]),
       },
       file: undefined,
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 
@@ -109,7 +109,7 @@ describe('CandidateController - createCandidate', () => {
     const req = {
       body: { firstName: '', lastName: 'Doe', email: 'not-an-email' },
       file: undefined,
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 
@@ -125,7 +125,7 @@ describe('CandidateController - createCandidate', () => {
     const req = {
       body: { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com' },
       file: undefined,
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 
@@ -171,7 +171,7 @@ describe('CandidateController - uploadCv', () => {
     const req = {
       params: { id: '1' },
       file: { buffer: Buffer.from('pdf'), originalname: 'new-cv.pdf', mimetype: 'application/pdf', size: 1024 },
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 
@@ -184,7 +184,7 @@ describe('CandidateController - uploadCv', () => {
     const req = {
       params: { id: '1' },
       file: undefined,
-      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+      user: { userId: 1, email: 'r@co.com', role: 'recruiter' },
     } as unknown as Request;
     const res = mockRes();
 

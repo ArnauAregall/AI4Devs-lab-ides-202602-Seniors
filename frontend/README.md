@@ -15,14 +15,13 @@ Built with React 18, TypeScript, and React Router v6.
 
 ## Environment Variables
 
-Create a `.env` file in this directory (a template is provided as `.env`):
+Create a `.env` file in this directory:
 
-| Variable              | Description                              | Default                        |
-|-----------------------|------------------------------------------|--------------------------------|
-| `REACT_APP_API_URL`   | Base URL for the backend REST API        | `http://localhost:3010`        |
-| `REACT_APP_API_TOKEN` | Bearer token for API authentication      | `change-me-in-dev`             |
+| Variable            | Description                       | Default                 |
+|---------------------|-----------------------------------|-------------------------|
+| `REACT_APP_API_URL` | Base URL for the backend REST API | `http://localhost:3010` |
 
-> **Note:** These values are embedded at build time by Create React App. Never commit real tokens to source control.
+> `REACT_APP_API_TOKEN` has been removed. Authentication is now handled through the login flow using short-lived JWTs and `HttpOnly` refresh cookies managed by the backend.
 
 ---
 
@@ -41,6 +40,18 @@ npm start
 ```
 
 The app will be available at [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Authentication
+
+The application uses a credential-based login flow:
+
+1. Navigate to any protected route — you will be redirected to `/login`.
+2. Enter your email and password (default dev credentials: `recruiter@example.com` / `recruiter123`).
+3. On successful login an access JWT is stored **in memory only** (never in `localStorage`).
+4. The backend sets an `HttpOnly` refresh cookie so sessions are silently restored on page reload.
+5. On logout or session expiry you are redirected back to `/login`.
 
 ---
 
@@ -69,10 +80,12 @@ The optimised output is written to `build/`.
 
 ```
 src/
-├── api/                 # API client (candidatesApi.ts) and shared types (types.ts)
+├── api/                 # API clients (authApi.ts, candidatesApi.ts) and shared types
+├── auth/                # AuthContext – in-memory token store and AuthProvider
 ├── components/
-│   └── CandidateForm/   # Multi-section form for adding a candidate
-├── pages/               # Page-level components (DashboardPage, AddCandidatePage)
+│   ├── CandidateForm/   # Multi-section form for adding a candidate
+│   └── ProtectedRoute   # Route guard that redirects unauthenticated users to /login
+├── pages/               # Page-level components
 ├── tests/               # All tests (mirrors src/ structure)
 │   ├── __mocks__/       # File stubs for Jest
 │   ├── api/
@@ -86,7 +99,8 @@ src/
 
 ## Available Pages
 
-| Path               | Description                        |
-|--------------------|------------------------------------|
-| `/`                | Recruiter dashboard                |
-| `/candidates/new`  | Add a new candidate form           |
+| Path               | Description                                     |
+|--------------------|-------------------------------------------------|
+| `/login`           | Login form (public)                             |
+| `/`                | Recruiter dashboard (protected)                 |
+| `/candidates/new`  | Add a new candidate form (protected)            |

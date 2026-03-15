@@ -1,10 +1,12 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 import candidateRoutes from './routes/candidateRoutes';
+import authRoutes from './routes/authRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -18,6 +20,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const swaggerOptions: swaggerJsdoc.Options = {
   definition: {
@@ -102,6 +105,13 @@ const swaggerOptions: swaggerJsdoc.Options = {
         },
       },
       responses: {
+        RateLimitExceeded: {
+          description: 'Too many requests',
+          headers: {
+            'Retry-After': { schema: { type: 'integer' } },
+          },
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+        },
         ValidationError: {
           description: 'Validation failed',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
@@ -139,6 +149,7 @@ app.get('/', (_req: Request, res: Response) => {
   res.json({ success: true, message: 'LTI ATS API is running' });
 });
 
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/candidates', candidateRoutes);
 
 app.use(errorHandler);

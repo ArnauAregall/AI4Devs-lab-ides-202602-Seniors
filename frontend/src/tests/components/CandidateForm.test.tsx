@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import CandidateForm from '../../components/CandidateForm/CandidateForm';
 import * as candidatesApi from '../../api/candidatesApi';
 import { ApiError } from '../../api/types';
+import { AuthProvider } from '../../auth/AuthContext';
 
 const mockCandidate = {
   id: 1,
@@ -31,7 +32,9 @@ const mockCreateCandidate = candidatesApi.createCandidate as jest.MockedFunction
 function renderForm() {
   return render(
     <MemoryRouter>
-      <CandidateForm />
+      <AuthProvider>
+        <CandidateForm />
+      </AuthProvider>
     </MemoryRouter>
   );
 }

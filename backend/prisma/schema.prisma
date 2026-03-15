@@ -8,9 +8,13 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id             Int      @id @default(autoincrement())
+  email          String   @unique @db.VarChar(255)
+  hashedPassword String   @db.VarChar(255)
+  role           String   @db.VarChar(50)
+  createdAt      DateTime @default(now())
+
+  @@map("users")
 }
 
 model Candidate {

@@ -66,3 +66,11 @@ export class UnsupportedFileTypeError extends AppError {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message = 'Authentication required') {
+    super('UNAUTHORIZED', message, 401);
+    this.name = 'UnauthorizedError';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}

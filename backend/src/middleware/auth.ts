@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AppError } from '../application/errors';
 
 export interface AuthenticatedUser {
-  userId: string;
+  userId: number;
   email: string;
   role: string;
 }
@@ -17,32 +17,22 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'change-me-in-production';
-
 export function authenticate(req: Request, _res: Response, next: NextFunction): void {
-  // TODO: Implement authentication middleware
-  req.user = {
-    userId: '1',
-    email: 'test@example.com',
-    role: 'recruiter',
-  };
-  next();
-  /*
   const authHeader = req.headers['authorization'];
   if (!authHeader?.startsWith('Bearer ')) {
     next(new AppError('UNAUTHORIZED', 'Authentication required', 401));
     return;
   }
 
+  const jwtSecret = process.env.JWT_SECRET ?? 'change-me-in-production';
   const token = authHeader.slice(7);
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+    const payload = jwt.verify(token, jwtSecret) as AuthenticatedUser;
     req.user = payload;
     next();
   } catch {
     next(new AppError('UNAUTHORIZED', 'Invalid or expired token', 401));
   }
-  */
 }
 
 export function requireRole(...roles: string[]) {

@@ -45,7 +45,7 @@ export class CandidateController {
         : undefined;
 
       const { candidate, cv } = await this.candidateService.createCandidate(
-        { ...validated, createdBy: req.user!.userId },
+        { ...validated, createdBy: String(req.user!.userId) },
         cvFile,
       );
 
