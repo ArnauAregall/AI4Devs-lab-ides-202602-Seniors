@@ -1,46 +1,92 @@
-# Getting Started with Create React App
+# LTI ATS — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Recruiter-facing web application for the LTI Applicant Tracking System.  
+Built with React 18, TypeScript, and React Router v6.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Prerequisites
 
-### `npm start`
+- Node.js 18+
+- npm 9+
+- A running instance of the [backend API](../backend/README.md)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+---
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Environment Variables
 
-### `npm test`
+Create a `.env` file in this directory (a template is provided as `.env`):
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Variable              | Description                              | Default                        |
+|-----------------------|------------------------------------------|--------------------------------|
+| `REACT_APP_API_URL`   | Base URL for the backend REST API        | `http://localhost:3010`        |
+| `REACT_APP_API_TOKEN` | Bearer token for API authentication      | `change-me-in-dev`             |
 
-### `npm run build`
+> **Note:** These values are embedded at build time by Create React App. Never commit real tokens to source control.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Getting Started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Install dependencies
 
-### `npm run eject`
+```bash
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Start the development server
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+---
 
-## Learn More
+## Running Tests
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm test
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Tests use [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).  
+Test files live under `src/tests/`, mirroring the source structure.
+
+---
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The optimised output is written to `build/`.
+
+---
+
+## Folder Structure
+
+```
+src/
+├── api/                 # API client (candidatesApi.ts) and shared types (types.ts)
+├── components/
+│   └── CandidateForm/   # Multi-section form for adding a candidate
+├── pages/               # Page-level components (DashboardPage, AddCandidatePage)
+├── tests/               # All tests (mirrors src/ structure)
+│   ├── __mocks__/       # File stubs for Jest
+│   ├── api/
+│   ├── components/
+│   ├── pages/
+│   └── validation/
+└── validation/          # Client-side validation logic
+```
+
+---
+
+## Available Pages
+
+| Path               | Description                        |
+|--------------------|------------------------------------|
+| `/`                | Recruiter dashboard                |
+| `/candidates/new`  | Add a new candidate form           |

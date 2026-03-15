@@ -80,6 +80,31 @@ describe('CandidateController - createCandidate', () => {
     expect(body.data.cv).not.toBeNull();
   });
 
+  it('should parse education and workExperience JSON strings from multipart body', async () => {
+    mockService.createCandidate.mockResolvedValue({ candidate: savedCandidate, cv: null });
+
+    const req = {
+      body: {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'jane@example.com',
+        education: JSON.stringify([{ degree: 'BSc', institution: 'UAB' }]),
+        workExperience: JSON.stringify([{ company: 'Acme', title: 'Engineer' }]),
+      },
+      file: undefined,
+      user: { userId: 'user-1', email: 'r@co.com', role: 'recruiter' },
+    } as unknown as Request;
+    const res = mockRes();
+
+    await controller.createCandidate(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(next).not.toHaveBeenCalled();
+    const callArg = (mockService.createCandidate as jest.Mock).mock.calls[0][0];
+    expect(Array.isArray(callArg.education)).toBe(true);
+    expect(Array.isArray(callArg.workExperience)).toBe(true);
+  });
+
   it('should call next with ValidationError when input is invalid', async () => {
     const req = {
       body: { firstName: '', lastName: 'Doe', email: 'not-an-email' },

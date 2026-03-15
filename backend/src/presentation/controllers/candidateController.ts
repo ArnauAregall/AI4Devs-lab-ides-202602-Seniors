@@ -6,12 +6,34 @@ import { Logger } from '../../infrastructure/logger';
 
 const logger = new Logger('candidateController');
 
+/**
+ * When the request is multipart/form-data, multer places all non-file fields
+ * in req.body as strings. The `education` and `workExperience` fields are
+ * JSON-serialised arrays on the client side, so we attempt to parse them back
+ * to arrays before validation.
+ */
+function parseJsonStringFields(body: Record<string, unknown>): Record<string, unknown> {
+  const parsed = { ...body };
+  for (const field of ['education', 'workExperience'] as const) {
+    if (typeof parsed[field] === 'string') {
+      try {
+        parsed[field] = JSON.parse(parsed[field] as string);
+      } catch {
+        // Leave the value as-is; Zod will produce a meaningful validation error.
+      }
+    }
+  }
+  return parsed;
+}
+
 export class CandidateController {
   constructor(private readonly candidateService: CandidateService) {}
 
   createCandidate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const validated = validateCreateCandidateInput(req.body);
+      const validated = validateCreateCandidateInput(
+        parseJsonStringFields(req.body as Record<string, unknown>),
+      );
 
       const cvFile = req.file
         ? {
