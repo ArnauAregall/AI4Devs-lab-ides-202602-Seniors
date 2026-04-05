@@ -12,7 +12,7 @@
 
 US-004 delivered login, JWT access tokens, `HttpOnly` refresh cookies, protected routes, and silent refresh. Users still had no self-service way to rotate their password. This story adds an authenticated **change-password** API and a **Settings** page so recruiters can verify their current password, set a new one that meets strength rules, and stay aligned with security expectations.
 
-**Source specification**: OpenSpec change `openspec/changes/change-password/` (proposal, design, tasks, and capability specs).
+**Source specification**: OpenSpec change archived at `openspec/changes/archive/2026-04-05-change-password/` (proposal, design, tasks, delta specs). Merged **canonical** requirements live under `openspec/specs/`: `auth-endpoints` (change-password on the auth router), `change-password-api`, and `change-password-form`.
 
 ---
 
@@ -109,5 +109,6 @@ US-004 delivered login, JWT access tokens, `HttpOnly` refresh cookies, protected
 - `PATCH /api/v1/auth/password` implemented, tested, and listed in Swagger/OpenAPI with the auth group.
 - `/settings` is protected; unauthenticated users are redirected to `/login`.
 - Client and server validation align; success and error UX match the OpenSpec scenarios.
-- `backend/README.md` and `frontend/README.md` describe the endpoint and route; architecture doc includes the change-password flow.
+- `backend/README.md` and `frontend/README.md` describe the endpoint and route; architecture doc includes the change-password flow and pointers to `openspec/specs/`.
+- Requirements are reflected in `openspec/specs/` (`auth-endpoints`, `change-password-api`, `change-password-form`); the change archive is at `openspec/changes/archive/2026-04-05-change-password/`.
 - All relevant automated tests pass.

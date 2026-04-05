@@ -30,7 +30,7 @@ title Container diagram — ATS
 Person(recruiter, "Recruiter", "End user")
 
 Container_Boundary(ats, "Applicant Tracking System") {
-    Container(spa, "Web application (SPA)", "React 18, TypeScript", "Login, protected routes (dashboard, add candidate, settings / change password), API client with silent refresh on 401")
+    Container(spa, "Web application (SPA)", "React 18, TypeScript", "Login; protected shell with NavBar (Home, Profile, Candidates); dashboard, add candidate, settings, placeholders; API client with silent refresh on 401")
     Container(api, "Backend API", "Node.js, Express, TypeScript", "POST|PATCH /api/v1/auth/* (rate-limited login; authenticated change password), JWT middleware, POST|GET /api/v1/candidates/*, multipart parsing")
     ContainerDb(db, "Database", "PostgreSQL", "Prisma — users, candidates, education, work experience, CV metadata")
     Container(fs, "CV file store", "Local filesystem", "Uploaded PDF/DOCX binaries")

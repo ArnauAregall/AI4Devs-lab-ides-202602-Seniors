@@ -23,3 +23,31 @@ test('renders the dashboard when a valid session is available', async () => {
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
   });
 });
+
+test('renders the NavBar on a protected route when authenticated', async () => {
+  mockRefreshToken.mockResolvedValueOnce({ accessToken: 'test-token', expiresIn: 900 });
+
+  render(
+    <MemoryRouter initialEntries={['/']}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+
+  await waitFor(() => {
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
+  });
+});
+
+test('does not render the NavBar on the login page', async () => {
+  render(
+    <MemoryRouter initialEntries={['/login']}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+
+  expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
+});

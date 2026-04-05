@@ -62,11 +62,11 @@ The API uses short-lived JWT access tokens (15 min) and `HttpOnly` refresh-token
 ### Endpoints
 
 
-| Method | Path                   | Description                                                                                 |
-| ------ | ---------------------- | ------------------------------------------------------------------------------------------- |
-| `POST` | `/api/v1/auth/login`   | Authenticate with `{ email, password }` — returns `{ accessToken }` and sets refresh cookie |
-| `POST` | `/api/v1/auth/refresh` | Exchange refresh cookie for a new access token                                              |
-| `POST` | `/api/v1/auth/logout`  | Clear refresh cookie                                                                        |
+| Method  | Path                    | Description                                                                                                                            |
+| ------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST`  | `/api/v1/auth/login`    | Authenticate with `{ email, password }` — returns `{ accessToken }` and sets refresh cookie                                            |
+| `POST`  | `/api/v1/auth/refresh`  | Exchange refresh cookie for a new access token                                                                                         |
+| `POST`  | `/api/v1/auth/logout`   | Clear refresh cookie                                                                                                                   |
 | `PATCH` | `/api/v1/auth/password` | Change password (`currentPassword`, `newPassword`, `confirmNewPassword`) — requires Bearer token; on success clears the refresh cookie |
 
 

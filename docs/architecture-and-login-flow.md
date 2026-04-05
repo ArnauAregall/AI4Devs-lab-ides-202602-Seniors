@@ -5,11 +5,13 @@
 ```mermaid
 flowchart LR
   subgraph Client["React SPA (CRA + TypeScript)"]
+    Nav["NavBar"]
     UI["Pages & forms"]
     AuthCtx["AuthContext (in-memory access JWT)"]
     AuthAPI["authApi"]
     CandAPI["candidatesApi"]
     Guard["ProtectedRoute"]
+    Nav --- UI
     UI --> AuthCtx
     AuthCtx --> AuthAPI
     AuthCtx --> CandAPI
@@ -38,7 +40,14 @@ flowchart LR
   CandCtrl --> FS
 ```
 
+The **NavBar** is rendered only for authenticated routes: `ProtectedRoute` wraps an `AuthenticatedLayout` that places `NavBar` above the page content (see `App.tsx`). It is not shown on `/login`.
 
+```mermaid
+flowchart TB
+  PR[ProtectedRoute] --> AL[AuthenticatedLayout]
+  AL --> NB[NavBar — Home / Profile / Candidates]
+  AL --> PC[Page content]
+```
 
 ## Login flow (sequence)
 
@@ -138,6 +147,14 @@ sequenceDiagram
   AA-->>CP: success message
   CP->>User: Inline confirmation; clear password fields
 ```
+
+### Related OpenSpec requirements
+
+Normative behaviour for this flow is specified under `openspec/specs/`: **`auth-endpoints`** (including `PATCH /api/v1/auth/password` on the auth surface), **`change-password-api`**, and **`change-password-form`**. The original change proposal is archived at `openspec/changes/archive/2026-04-05-change-password/`.
+
+### Related OpenSpec requirements (authenticated navigation)
+
+Persistent navigation for logged-in users is specified under `openspec/specs/`: **`authenticated-nav`** (NavBar links, accessibility, responsiveness, placeholder routes) and **`auth-session-frontend`** (protected layout includes `NavBar`). The original change proposal is archived at `openspec/changes/archive/2026-04-05-authenticated-user-nav-items/`.
 
 
 

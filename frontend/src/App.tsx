@@ -4,7 +4,19 @@ import DashboardPage from './pages/DashboardPage';
 import AddCandidatePage from './pages/AddCandidatePage';
 import LoginPage from './pages/LoginPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import ProfilePage from './pages/ProfilePage';
+import CandidatesPage from './pages/CandidatesPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import NavBar from './components/NavBar/NavBar';
+
+function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <NavBar />
+      {children}
+    </>
+  );
+}
 
 function App() {
   return (
@@ -14,7 +26,9 @@ function App() {
         path="/"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <AuthenticatedLayout>
+              <DashboardPage />
+            </AuthenticatedLayout>
           </ProtectedRoute>
         }
       />
@@ -22,7 +36,9 @@ function App() {
         path="/candidates/new"
         element={
           <ProtectedRoute>
-            <AddCandidatePage />
+            <AuthenticatedLayout>
+              <AddCandidatePage />
+            </AuthenticatedLayout>
           </ProtectedRoute>
         }
       />
@@ -30,7 +46,29 @@ function App() {
         path="/settings"
         element={
           <ProtectedRoute>
-            <ChangePasswordPage />
+            <AuthenticatedLayout>
+              <ChangePasswordPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <ProfilePage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/candidates"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <CandidatesPage />
+            </AuthenticatedLayout>
           </ProtectedRoute>
         }
       />

@@ -24,7 +24,7 @@ The frontend SHALL provide a `/login` route that renders a form with an email fi
 - **THEN** the submit button SHALL be disabled and SHALL indicate loading
 
 ### Requirement: Protected routes redirect unauthenticated users to the login page
-The frontend SHALL wrap all routes other than `/login` with a `ProtectedRoute` guard that checks for a valid in-memory access token (or attempts a silent refresh) before rendering the child route; unauthenticated users SHALL be redirected to `/login`.
+The frontend SHALL wrap all routes other than `/login` with a `ProtectedRoute` guard that checks for a valid in-memory access token (or attempts a silent refresh) before rendering the child route; unauthenticated users SHALL be redirected to `/login`. Protected routes SHALL be rendered inside an authenticated layout that includes the `NavBar` component above the page content, so navigation is consistently available to authenticated users on every protected page.
 
 #### Scenario: Unauthenticated access to dashboard redirects to login
 - **WHEN** a user navigates to `/` without a valid in-memory token and the silent refresh also fails
@@ -37,6 +37,10 @@ The frontend SHALL wrap all routes other than `/login` with a `ProtectedRoute` g
 #### Scenario: Authenticated user can access protected routes
 - **WHEN** a user navigates to a protected route with a valid in-memory access token
 - **THEN** the route SHALL render normally without a redirect
+
+#### Scenario: Authenticated user sees the NavBar on every protected page
+- **WHEN** a user is authenticated and navigates to any protected route (e.g. `/`, `/candidates`, `/profile`)
+- **THEN** the `NavBar` SHALL be visible at the top of the page above the page content
 
 ### Requirement: Access token is stored in memory only and restored silently on page load
 The frontend SHALL store the access JWT in a JavaScript module-level variable or React context. The token SHALL NOT be written to `localStorage`, `sessionStorage`, or any JavaScript-accessible cookie. On application load, the frontend SHALL attempt to restore the access token by calling `POST /api/v1/auth/refresh` using the `HttpOnly` cookie before rendering protected content.

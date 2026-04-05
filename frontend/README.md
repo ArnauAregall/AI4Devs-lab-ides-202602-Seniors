@@ -55,6 +55,12 @@ The application uses a credential-based login flow:
 4. The backend sets an `HttpOnly` refresh cookie so sessions are silently restored on page reload.
 5. On logout or session expiry you are redirected back to `/login`.
 
+### Authenticated navigation
+
+When you are logged in, a **`NavBar`** appears at the top of every **protected** route (not on `/login`). It provides **Home** (`/`), **Profile** (`/profile`), and **Candidates** (`/candidates`) using React Router `NavLink`, with active-route highlighting and a `<nav aria-label="Main navigation">` landmark. On very narrow viewports the items scroll horizontally.
+
+`/profile` and `/candidates` currently render minimal placeholder pages so those links always resolve; `/candidates/new` remains the add-candidate form.
+
 ### Change password
 
 Authenticated users can open **`/settings`** to change their password. The form calls `PATCH /api/v1/auth/password` with the in-memory access token. Strength rules match the backend; after a successful change the refresh cookie is cleared on the server—remain logged in until the short-lived access token expires, then log in again with the new password.
@@ -90,6 +96,7 @@ src/
 ├── auth/                # AuthContext – in-memory token store and AuthProvider
 ├── components/
 │   ├── CandidateForm/   # Multi-section form for adding a candidate
+│   ├── NavBar/          # Top nav (Home, Profile, Candidates) for authenticated users
 │   └── ProtectedRoute   # Route guard that redirects unauthenticated users to /login
 ├── pages/               # Page-level components
 ├── tests/               # All tests (mirrors src/ structure)
@@ -109,8 +116,10 @@ src/
 | Path              | Description                          |
 | ----------------- | ------------------------------------ |
 | `/login`          | Login form (public)                  |
-| `/`               | Recruiter dashboard (protected)      |
+| `/`               | Recruiter dashboard (protected)    |
 | `/candidates/new` | Add a new candidate form (protected) |
+| `/candidates`     | Candidates hub — placeholder (protected) |
+| `/profile`        | Profile — placeholder (protected)    |
 | `/settings`       | Change password (protected)          |
 
 
