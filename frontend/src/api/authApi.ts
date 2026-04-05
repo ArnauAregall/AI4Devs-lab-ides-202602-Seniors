@@ -1,4 +1,5 @@
 import { ApiError, ApiErrorBody } from './types';
+import { getAccessToken } from './tokenStore';
 
 const BASE_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:3010';
 
@@ -57,4 +58,25 @@ export async function logout(): Promise<void> {
     method: 'POST',
     credentials: 'include',
   });
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmNewPassword: string,
+): Promise<void> {
+  const token = getAccessToken();
+  const res = await fetch(`${BASE_URL}/api/v1/auth/password`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    credentials: 'include',
+    body: JSON.stringify({ currentPassword, newPassword, confirmNewPassword }),
+  });
+
+  if (!res.ok) {
+    return parseErrorResponse(res);
+  }
 }

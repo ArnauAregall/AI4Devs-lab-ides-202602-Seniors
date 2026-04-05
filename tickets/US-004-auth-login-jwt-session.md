@@ -13,11 +13,10 @@
 The three previous user stories established the backend API (US-001), the database schema (US-002), and the recruiter-facing candidate form (US-003). However, authentication was never properly completed:
 
 1. **Backend bypass**: The `authenticate` middleware in `backend/src/middleware/auth.ts` has its JWT verification logic commented out. It currently injects a hardcoded mock user (`userId: '1'`, `role: 'recruiter'`) on every request, meaning all routes are effectively public.
-
 2. **Frontend static token**: US-003 reads a shared token from the `REACT_APP_API_TOKEN` environment variable and sends it as an `Authorization: Bearer` header. This approach fails fundamentally in a browser-based application:
-   - The environment variable is baked into the compiled JavaScript bundle and is visible to any user who opens DevTools.
-   - The token is shared across all users and sessions; it cannot be rotated per user or revoked individually.
-   - There is no login, logout, or session expiry mechanism.
+  - The environment variable is baked into the compiled JavaScript bundle and is visible to any user who opens DevTools.
+  - The token is shared across all users and sessions; it cannot be rotated per user or revoked individually.
+  - There is no login, logout, or session expiry mechanism.
 
 This user story closes both gaps by implementing a proper credential-based login flow, a secure token lifecycle using short-lived JWTs and `HttpOnly` refresh-token cookies, and re-enabling the existing backend middleware.
 
@@ -29,11 +28,13 @@ This user story closes both gaps by implementing a proper credential-based login
 
 **Backend endpoints**
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `POST` | `/api/v1/auth/login` | Accept `{ email, password }`, validate credentials, return a signed access JWT and set a `HttpOnly` refresh-token cookie |
-| `POST` | `/api/v1/auth/refresh` | Accept the refresh-token cookie and return a new access JWT |
-| `POST` | `/api/v1/auth/logout` | Clear the refresh-token cookie and invalidate the session |
+
+| Method | Path                   | Purpose                                                                                                                  |
+| ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `POST` | `/api/v1/auth/login`   | Accept `{ email, password }`, validate credentials, return a signed access JWT and set a `HttpOnly` refresh-token cookie |
+| `POST` | `/api/v1/auth/refresh` | Accept the refresh-token cookie and return a new access JWT                                                              |
+| `POST` | `/api/v1/auth/logout`  | Clear the refresh-token cookie and invalidate the session                                                                |
+
 
 **Backend middleware**
 
@@ -133,23 +134,27 @@ This user story closes both gaps by implementing a proper credential-based login
 
 #### Token design
 
-| Property | Value |
-|----------|-------|
-| Signing algorithm | **HS256** (HMAC-SHA256); upgrade path to RS256 documented but not required this iteration |
-| Access token lifetime | **15 minutes** (`exp` claim) |
-| Refresh token lifetime | **7 days** |
-| JWT payload | `{ userId, email, role, iat, exp }` — no sensitive PII beyond email |
-| Secret source | `JWT_SECRET` environment variable; must be ≥ 32 random bytes; must never appear in source code or frontend bundle |
+
+| Property               | Value                                                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Signing algorithm      | **HS256** (HMAC-SHA256); upgrade path to RS256 documented but not required this iteration                         |
+| Access token lifetime  | **15 minutes** (`exp` claim)                                                                                      |
+| Refresh token lifetime | **7 days**                                                                                                        |
+| JWT payload            | `{ userId, email, role, iat, exp }` — no sensitive PII beyond email                                               |
+| Secret source          | `JWT_SECRET` environment variable; must be ≥ 32 random bytes; must never appear in source code or frontend bundle |
+
 
 #### Cookie attributes (refresh token)
 
-| Attribute | Value | Reason |
-|-----------|-------|--------|
-| `HttpOnly` | true | Prevents JavaScript access; blocks XSS token theft |
-| `Secure` | true (production) | Transmitted only over HTTPS |
-| `SameSite` | `Strict` | Prevents CSRF on the refresh endpoint |
-| `Path` | `/api/v1/auth` | Scoped to auth routes only; not sent with candidate API calls |
-| `Max-Age` | 604800 (7 days) | Matches refresh token expiry |
+
+| Attribute  | Value             | Reason                                                        |
+| ---------- | ----------------- | ------------------------------------------------------------- |
+| `HttpOnly` | true              | Prevents JavaScript access; blocks XSS token theft            |
+| `Secure`   | true (production) | Transmitted only over HTTPS                                   |
+| `SameSite` | `Strict`          | Prevents CSRF on the refresh endpoint                         |
+| `Path`     | `/api/v1/auth`    | Scoped to auth routes only; not sent with candidate API calls |
+| `Max-Age`  | 604800 (7 days)   | Matches refresh token expiry                                  |
+
 
 #### Frontend token storage
 
@@ -222,17 +227,18 @@ This user story closes both gaps by implementing a proper credential-based login
 
 ### Definition of Done
 
-- [ ] `POST /api/v1/auth/login` implemented, tested, and documented in OpenAPI.
-- [ ] `POST /api/v1/auth/refresh` implemented, tested, and documented in OpenAPI.
-- [ ] `POST /api/v1/auth/logout` implemented, tested, and documented in OpenAPI.
-- [ ] Hardcoded bypass removed from `backend/src/middleware/auth.ts`; JWT verification is the only code path.
-- [ ] `authenticate` middleware active on all candidate routes; no route is accidentally left unprotected.
-- [ ] `LoginPage` component implemented with client-side validation and server-error display.
-- [ ] `ProtectedRoute` redirects unauthenticated users to `/login`.
-- [ ] Access token stored in memory only; `REACT_APP_API_TOKEN` removed from frontend.
-- [ ] Silent token refresh on `401` implemented in `candidatesApi.ts`.
-- [ ] All existing backend tests continue to pass with authentication re-enabled.
-- [ ] All new backend and frontend tests listed above are passing.
-- [ ] OpenAPI documentation updated for all three auth endpoints.
-- [ ] `frontend/README.md` and `backend/README.md` updated to document the new auth flow and required environment variables (`JWT_SECRET`).
-- [ ] `JWT_SECRET` is not committed to source control; `.env.example` documents the variable with a placeholder value.
+- `POST /api/v1/auth/login` implemented, tested, and documented in OpenAPI.
+- `POST /api/v1/auth/refresh` implemented, tested, and documented in OpenAPI.
+- `POST /api/v1/auth/logout` implemented, tested, and documented in OpenAPI.
+- Hardcoded bypass removed from `backend/src/middleware/auth.ts`; JWT verification is the only code path.
+- `authenticate` middleware active on all candidate routes; no route is accidentally left unprotected.
+- `LoginPage` component implemented with client-side validation and server-error display.
+- `ProtectedRoute` redirects unauthenticated users to `/login`.
+- Access token stored in memory only; `REACT_APP_API_TOKEN` removed from frontend.
+- Silent token refresh on `401` implemented in `candidatesApi.ts`.
+- All existing backend tests continue to pass with authentication re-enabled.
+- All new backend and frontend tests listed above are passing.
+- OpenAPI documentation updated for all three auth endpoints.
+- `frontend/README.md` and `backend/README.md` updated to document the new auth flow and required environment variables (`JWT_SECRET`).
+- `JWT_SECRET` is not committed to source control; `.env.example` documents the variable with a placeholder value.
+

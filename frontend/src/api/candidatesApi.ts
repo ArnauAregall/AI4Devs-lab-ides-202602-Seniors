@@ -6,18 +6,11 @@ import {
   CreateCandidateRequest,
 } from './types';
 import { refreshToken as authRefreshToken } from './authApi';
+import { getAccessToken, setAccessToken } from './tokenStore';
+
+export { getAccessToken, setAccessToken };
 
 const BASE_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:3010';
-
-let _accessToken: string | null = null;
-
-export function setAccessToken(token: string | null): void {
-  _accessToken = token;
-}
-
-export function getAccessToken(): string | null {
-  return _accessToken;
-}
 
 async function parseErrorResponse(res: Response): Promise<never> {
   let body: ApiErrorBody | null = null;
@@ -37,13 +30,13 @@ async function parseErrorResponse(res: Response): Promise<never> {
 async function withRefreshRetry<T>(
   doRequest: (token: string | null) => Promise<Response>,
 ): Promise<T> {
-  let res = await doRequest(_accessToken);
+  let res = await doRequest(getAccessToken());
 
   if (res.status === 401) {
     try {
       const refreshed = await authRefreshToken();
-      _accessToken = refreshed.accessToken;
-      res = await doRequest(_accessToken);
+      setAccessToken(refreshed.accessToken);
+      res = await doRequest(getAccessToken());
     } catch {
       throw new ApiError(401, 'UNAUTHORIZED', 'Session expired. Please log in again.');
     }

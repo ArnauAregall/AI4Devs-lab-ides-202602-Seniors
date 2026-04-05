@@ -23,7 +23,7 @@
 
 Table and column names can be adapted to project conventions.
 
-**`candidates`**
+`**candidates`**
 
 - `id` (UUID, PK)
 - `first_name` (varchar(100), not null)
@@ -37,7 +37,7 @@ Table and column names can be adapted to project conventions.
 - `updated_at` (timestamptz, not null, default now())
 - `created_by` (varchar(100) or FK to `users`, null for now if users not modeled yet)
 
-**`candidate_educations`**
+`**candidate_educations`**
 
 - `id` (UUID, PK)
 - `candidate_id` (UUID, FK to `candidates.id` ON DELETE CASCADE, indexed)
@@ -46,7 +46,7 @@ Table and column names can be adapted to project conventions.
 - `start_date` (date, null)
 - `end_date` (date, null)
 
-**`candidate_work_experiences`**
+`**candidate_work_experiences`**
 
 - `id` (UUID, PK)
 - `candidate_id` (UUID, FK to `candidates.id` ON DELETE CASCADE, indexed)
@@ -56,7 +56,7 @@ Table and column names can be adapted to project conventions.
 - `end_date` (date, null)
 - `description` (text, null)
 
-**`candidate_cvs`**
+`**candidate_cvs**`
 
 - `id` (UUID, PK)
 - `candidate_id` (UUID, FK to `candidates.id` ON DELETE CASCADE, unique to enforce one active CV per candidate initially)
@@ -124,4 +124,3 @@ Table and column names can be adapted to project conventions.
 - Migrations apply cleanly to an empty PostgreSQL instance and can be rolled back.
 - Backend can read/write candidate data using this schema without manual DB adjustments.
 - Documentation is updated to describe the schema and the commands to run migrations.
-

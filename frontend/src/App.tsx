@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import AddCandidatePage from './pages/AddCandidatePage';
 import LoginPage from './pages/LoginPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -22,6 +23,14 @@ function App() {
         element={
           <ProtectedRoute>
             <AddCandidatePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <ChangePasswordPage />
           </ProtectedRoute>
         }
       />

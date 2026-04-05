@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
-import { UnauthorizedError } from '../errors';
+import { UnauthorizedError, PasswordValidationError } from '../errors';
+import { validatePasswordStrength } from '../validators/authValidator';
 
 const ACCESS_TOKEN_TTL = 15 * 60;
 const REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60;
@@ -52,6 +53,28 @@ export class AuthService {
     );
 
     return { accessToken, refreshToken };
+  }
+
+  async changePassword(userId: number, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    const isCurrentValid = await bcrypt.compare(currentPassword, user.hashedPassword);
+    if (!isCurrentValid) {
+      throw new PasswordValidationError('Current password is incorrect', {
+        currentPassword: 'Current password is incorrect',
+      });
+    }
+
+    const strengthErrors = validatePasswordStrength(newPassword);
+    if (Object.keys(strengthErrors).length > 0) {
+      throw new PasswordValidationError('New password does not meet strength requirements', strengthErrors);
+    }
+
+    const hashedNew = await bcrypt.hash(newPassword, 12);
+    await this.userRepo.updatePassword(userId, hashedNew);
   }
 
   refreshAccessToken(refreshToken: string): string {

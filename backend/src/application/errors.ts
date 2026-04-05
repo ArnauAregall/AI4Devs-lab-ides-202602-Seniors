@@ -74,3 +74,14 @@ export class UnauthorizedError extends AppError {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
+export class PasswordValidationError extends AppError {
+  constructor(
+    message: string,
+    public readonly fieldErrors: Record<string, string>,
+  ) {
+    super('PASSWORD_VALIDATION_ERROR', message, 400);
+    this.name = 'PasswordValidationError';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}

@@ -16,14 +16,16 @@ cp .env.example .env   # then edit .env with your values
 
 ### Required environment variables
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `PORT` | HTTP port (default `3010`) |
-| `FRONTEND_URL` | Allowed CORS origin (default `http://localhost:3000`) |
-| `JWT_SECRET` | **Required.** HS256 signing secret – must be at least 32 random bytes. Generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
-| `CV_UPLOAD_DIR` | Directory for CV file uploads (default `./uploads/cvs`) |
-| `CV_MAX_SIZE_BYTES` | Maximum CV file size in bytes (default `5242880` = 5 MB) |
+
+| Variable            | Description                                                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`      | PostgreSQL connection string                                                                                                                                     |
+| `PORT`              | HTTP port (default `3010`)                                                                                                                                       |
+| `FRONTEND_URL`      | Allowed CORS origin (default `http://localhost:3000`)                                                                                                            |
+| `JWT_SECRET`        | **Required.** HS256 signing secret – must be at least 32 random bytes. Generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `CV_UPLOAD_DIR`     | Directory for CV file uploads (default `./uploads/cvs`)                                                                                                          |
+| `CV_MAX_SIZE_BYTES` | Maximum CV file size in bytes (default `5242880` = 5 MB)                                                                                                         |
+
 
 > **Security**: `JWT_SECRET` must never be committed to source control. The `.env` file is git-ignored.
 
@@ -47,9 +49,11 @@ NODE_ENV=development npx prisma db seed
 
 Default development credentials (after seeding):
 
-| Email | Password |
-|---|---|
+
+| Email                   | Password       |
+| ----------------------- | -------------- |
 | `recruiter@example.com` | `recruiter123` |
+
 
 ## Authentication
 
@@ -57,13 +61,18 @@ The API uses short-lived JWT access tokens (15 min) and `HttpOnly` refresh-token
 
 ### Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/auth/login` | Authenticate with `{ email, password }` — returns `{ accessToken }` and sets refresh cookie |
-| `POST` | `/api/v1/auth/refresh` | Exchange refresh cookie for a new access token |
-| `POST` | `/api/v1/auth/logout` | Clear refresh cookie |
+
+| Method | Path                   | Description                                                                                 |
+| ------ | ---------------------- | ------------------------------------------------------------------------------------------- |
+| `POST` | `/api/v1/auth/login`   | Authenticate with `{ email, password }` — returns `{ accessToken }` and sets refresh cookie |
+| `POST` | `/api/v1/auth/refresh` | Exchange refresh cookie for a new access token                                              |
+| `POST` | `/api/v1/auth/logout`  | Clear refresh cookie                                                                        |
+| `PATCH` | `/api/v1/auth/password` | Change password (`currentPassword`, `newPassword`, `confirmNewPassword`) — requires Bearer token; on success clears the refresh cookie |
+
 
 All candidate endpoints require a valid `Authorization: Bearer <accessToken>` header.
+
+The change-password endpoint also requires a Bearer token. It verifies the current password, enforces strength rules (min 8 characters, uppercase, lowercase, digit, special character), hashes the new password with bcrypt, and clears the refresh cookie on success so silent refresh must re-authenticate after the access token expires.
 
 The login endpoint is rate-limited to **10 requests per minute per IP**.
 

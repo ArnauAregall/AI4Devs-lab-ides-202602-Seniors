@@ -17,9 +17,11 @@ Built with React 18, TypeScript, and React Router v6.
 
 Create a `.env` file in this directory:
 
+
 | Variable            | Description                       | Default                 |
-|---------------------|-----------------------------------|-------------------------|
+| ------------------- | --------------------------------- | ----------------------- |
 | `REACT_APP_API_URL` | Base URL for the backend REST API | `http://localhost:3010` |
+
 
 > `REACT_APP_API_TOKEN` has been removed. Authentication is now handled through the login flow using short-lived JWTs and `HttpOnly` refresh cookies managed by the backend.
 
@@ -52,6 +54,10 @@ The application uses a credential-based login flow:
 3. On successful login an access JWT is stored **in memory only** (never in `localStorage`).
 4. The backend sets an `HttpOnly` refresh cookie so sessions are silently restored on page reload.
 5. On logout or session expiry you are redirected back to `/login`.
+
+### Change password
+
+Authenticated users can open **`/settings`** to change their password. The form calls `PATCH /api/v1/auth/password` with the in-memory access token. Strength rules match the backend; after a successful change the refresh cookie is cleared on the server—remain logged in until the short-lived access token expires, then log in again with the new password.
 
 ---
 
@@ -99,8 +105,12 @@ src/
 
 ## Available Pages
 
-| Path               | Description                                     |
-|--------------------|-------------------------------------------------|
-| `/login`           | Login form (public)                             |
-| `/`                | Recruiter dashboard (protected)                 |
-| `/candidates/new`  | Add a new candidate form (protected)            |
+
+| Path              | Description                          |
+| ----------------- | ------------------------------------ |
+| `/login`          | Login form (public)                  |
+| `/`               | Recruiter dashboard (protected)      |
+| `/candidates/new` | Add a new candidate form (protected) |
+| `/settings`       | Change password (protected)          |
+
+

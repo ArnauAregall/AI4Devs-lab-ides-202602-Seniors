@@ -38,6 +38,8 @@ flowchart LR
   CandCtrl --> FS
 ```
 
+
+
 ## Login flow (sequence)
 
 ```mermaid
@@ -62,6 +64,8 @@ sequenceDiagram
   LP->>User: Navigate to /
 ```
 
+
+
 ## Protected route & silent refresh
 
 ```mermaid
@@ -85,6 +89,8 @@ sequenceDiagram
   Note over PR,API: On refresh failure → Navigate to /login
 ```
 
+
+
 ## API call with optional token refresh
 
 ```mermaid
@@ -104,3 +110,34 @@ sequenceDiagram
   end
   API-->>CA: 201 / 4xx
 ```
+
+
+
+## Change password flow (sequence)
+
+Authenticated users can rotate their password from the Settings page. The API requires the current password, validates a strong new password and confirmation, updates the stored bcrypt hash, and clears the `HttpOnly` refresh cookie. The in-memory access token remains valid until it expires; after that, silent refresh fails and the user must log in again with the new password.
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant CP as ChangePasswordPage
+  participant AA as authApi
+  participant API as Express /auth
+  participant AS as AuthService
+  participant DB as Prisma / PostgreSQL
+
+  User->>CP: Submit current + new + confirm
+  CP->>CP: Client-side validation
+  CP->>AA: changePassword(...)
+  AA->>API: PATCH /api/v1/auth/password (Bearer + JSON body)
+  API->>AS: changePassword(userId, ...)
+  AS->>DB: load user, bcrypt compare current
+  AS->>DB: bcrypt hash new password, update user
+  AS-->>API: success
+  API-->>AA: 200 + Set-Cookie (clear refreshToken)
+  AA-->>CP: success message
+  CP->>User: Inline confirmation; clear password fields
+```
+
+
+

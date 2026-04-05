@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaUserRepository } from '../infrastructure/repositories/PrismaUserRepository';
 import { AuthService } from '../application/services/authService';
 import { AuthController } from '../presentation/controllers/authController';
+import { authenticate } from '../middleware/auth';
 
 const prisma = new PrismaClient();
 const userRepo = new PrismaUserRepository(prisma);
@@ -114,5 +115,37 @@ router.post('/refresh', authController.refresh);
  *         description: Session ended; refresh cookie cleared
  */
 router.post('/logout', authController.logout);
+
+/**
+ * @openapi
+ * /auth/password:
+ *   patch:
+ *     summary: Change the authenticated user's password
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword, confirmNewPassword]
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *               confirmNewPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password changed successfully; refresh cookie cleared
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.patch('/password', authenticate, authController.changePassword);
 
 export default router;

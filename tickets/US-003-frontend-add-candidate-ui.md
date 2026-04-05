@@ -104,4 +104,3 @@
   - See a clear success confirmation and, if specified, navigate to the new candidate’s detail view.
 - All specified tests are implemented and passing in CI.
 - UX and accessibility meet the project’s baseline standards.
-

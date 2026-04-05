@@ -12,10 +12,12 @@ title System context — Applicant Tracking System (lab)
 
 Person(recruiter, "Recruiter", "Uses the web UI to log in and manage candidates.")
 
-System(ats, "Applicant Tracking System", "Single product: React SPA + Express API, JWT access token + HttpOnly refresh cookie, candidate CRUD, CV upload.")
+System(ats, "Applicant Tracking System", "Single product: React SPA + Express API, JWT access token + HttpOnly refresh cookie, auth (login, refresh, logout, change password), candidate CRUD, CV upload.")
 
 Rel(recruiter, ats, "Uses", "HTTPS (browser)")
 ```
+
+
 
 ---
 
@@ -28,8 +30,8 @@ title Container diagram — ATS
 Person(recruiter, "Recruiter", "End user")
 
 Container_Boundary(ats, "Applicant Tracking System") {
-    Container(spa, "Web application (SPA)", "React 18, TypeScript", "Login, protected routes, dashboard, add-candidate form, API client with silent refresh on 401")
-    Container(api, "Backend API", "Node.js, Express, TypeScript", "POST /api/v1/auth/* (rate-limited login), JWT middleware, POST|GET /api/v1/candidates/*, multipart parsing")
+    Container(spa, "Web application (SPA)", "React 18, TypeScript", "Login, protected routes (dashboard, add candidate, settings / change password), API client with silent refresh on 401")
+    Container(api, "Backend API", "Node.js, Express, TypeScript", "POST|PATCH /api/v1/auth/* (rate-limited login; authenticated change password), JWT middleware, POST|GET /api/v1/candidates/*, multipart parsing")
     ContainerDb(db, "Database", "PostgreSQL", "Prisma — users, candidates, education, work experience, CV metadata")
     Container(fs, "CV file store", "Local filesystem", "Uploaded PDF/DOCX binaries")
 }
@@ -39,3 +41,6 @@ Rel(spa, api, "REST JSON", "Authorization: Bearer; refresh cookie on auth routes
 Rel(api, db, "Reads/writes", "Prisma / SQL")
 Rel(api, fs, "Stores CV files", "Stream / path")
 ```
+
+
+

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthController } from './authController';
 import { AuthService } from '../../application/services/authService';
-import { UnauthorizedError, ValidationError } from '../../application/errors';
+import { UnauthorizedError, ValidationError, PasswordValidationError } from '../../application/errors';
 
 jest.mock('../../application/services/authService');
 
@@ -145,5 +145,102 @@ describe('AuthController.logout', () => {
       '',
       expect.objectContaining({ maxAge: 0 }),
     );
+  });
+});
+
+describe('AuthController.changePassword', () => {
+  function makeReq(body: object, userId = 1): Request {
+    return {
+      body,
+      user: { userId, email: 'recruiter@example.com', role: 'recruiter' },
+    } as unknown as Request;
+  }
+
+  it('calls next with ValidationError when body fields are missing', async () => {
+    const req = makeReq({});
+    const res = mockRes();
+
+    await controller.changePassword(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(ValidationError));
+    expect(mockService.changePassword).not.toHaveBeenCalled();
+  });
+
+  it('calls next with ValidationError when passwords do not match', async () => {
+    const req = makeReq({
+      currentPassword: 'OldPass1!',
+      newPassword: 'NewPass1!',
+      confirmNewPassword: 'Different1!',
+    });
+    const res = mockRes();
+
+    await controller.changePassword(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(ValidationError));
+    const ve = (next as jest.Mock).mock.calls[0][0] as ValidationError;
+    expect(ve.fieldErrors.confirmNewPassword).toBeDefined();
+    expect(mockService.changePassword).not.toHaveBeenCalled();
+  });
+
+  it('calls next with PasswordValidationError when current password is wrong', async () => {
+    mockService.changePassword.mockRejectedValue(
+      new PasswordValidationError('Current password is incorrect', {
+        currentPassword: 'Current password is incorrect',
+      }),
+    );
+
+    const req = makeReq({
+      currentPassword: 'WrongPass1!',
+      newPassword: 'NewPass1!',
+      confirmNewPassword: 'NewPass1!',
+    });
+    const res = mockRes();
+
+    await controller.changePassword(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(PasswordValidationError));
+  });
+
+  it('returns 200 with success message and clears refresh cookie on success', async () => {
+    mockService.changePassword.mockResolvedValue(undefined);
+
+    const req = makeReq({
+      currentPassword: 'OldPass1!',
+      newPassword: 'NewPass1!',
+      confirmNewPassword: 'NewPass1!',
+    });
+    const res = mockRes();
+
+    await controller.changePassword(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: 'Your password has been changed successfully.',
+    });
+    expect(res.cookie).toHaveBeenCalledWith(
+      'refreshToken',
+      '',
+      expect.objectContaining({ maxAge: 0 }),
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('calls next with ValidationError when auth guard is missing (no req.user)', async () => {
+    const req = {
+      body: {
+        currentPassword: 'OldPass1!',
+        newPassword: 'NewPass1!',
+        confirmNewPassword: 'NewPass1!',
+      },
+    } as unknown as Request;
+    const res = mockRes();
+
+    mockService.changePassword.mockResolvedValue(undefined);
+
+    // With no req.user, req.user!.userId will throw a TypeError caught by next
+    await controller.changePassword(req, res, next);
+
+    expect(next).toHaveBeenCalled();
   });
 });

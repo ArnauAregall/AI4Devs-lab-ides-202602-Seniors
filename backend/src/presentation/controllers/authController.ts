@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../../application/services/authService';
-import { validateLoginInput } from '../../application/validators/authValidator';
-import { UnauthorizedError } from '../../application/errors';
+import { validateLoginInput, validateChangePasswordInput } from '../../application/validators/authValidator';
+import { UnauthorizedError, ValidationError } from '../../application/errors';
 
 const REFRESH_COOKIE = 'refreshToken';
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
@@ -59,5 +59,32 @@ export class AuthController {
       maxAge: 0,
     });
     res.status(204).send();
+  };
+
+  changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { currentPassword, newPassword, confirmNewPassword } = validateChangePasswordInput(req.body);
+
+      if (newPassword !== confirmNewPassword) {
+        throw new ValidationError('Validation failed', {
+          confirmNewPassword: 'Passwords do not match',
+        });
+      }
+
+      const userId = req.user!.userId;
+      await this.authService.changePassword(userId, currentPassword, newPassword);
+
+      res.cookie(REFRESH_COOKIE, '', {
+        ...refreshCookieOptions(),
+        maxAge: 0,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Your password has been changed successfully.',
+      });
+    } catch (err) {
+      next(err);
+    }
   };
 }

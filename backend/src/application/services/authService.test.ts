@@ -3,10 +3,12 @@ import bcrypt from 'bcryptjs';
 import { AuthService } from './authService';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/models/User';
-import { UnauthorizedError } from '../errors';
+import { UnauthorizedError, PasswordValidationError } from '../errors';
 
 const mockUserRepo: jest.Mocked<IUserRepository> = {
   findByEmail: jest.fn(),
+  findById: jest.fn(),
+  updatePassword: jest.fn(),
 };
 
 const service = new AuthService(mockUserRepo);
@@ -67,6 +69,90 @@ describe('AuthService.login', () => {
     const error2 = await service.login('recruiter@example.com', 'wrongpass').catch((e) => e);
 
     expect(error1.message).toBe(error2.message);
+  });
+});
+
+describe('AuthService.changePassword', () => {
+  it('hashes and updates password for valid current password and strong new password', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+    mockUserRepo.updatePassword.mockResolvedValue(undefined);
+
+    await service.changePassword(1, 'secret123', 'NewStr0ng!');
+
+    expect(mockUserRepo.updatePassword).toHaveBeenCalledWith(1, expect.any(String));
+    const [, hashed] = mockUserRepo.updatePassword.mock.calls[0];
+    expect(await bcrypt.compare('NewStr0ng!', hashed)).toBe(true);
+  });
+
+  it('throws PasswordValidationError when current password is incorrect', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await expect(
+      service.changePassword(1, 'wrongpass', 'NewStr0ng!'),
+    ).rejects.toBeInstanceOf(PasswordValidationError);
+  });
+
+  it('throws PasswordValidationError with currentPassword field for wrong current password', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    const err = await service.changePassword(1, 'wrongpass', 'NewStr0ng!').catch((e) => e);
+    expect(err.fieldErrors.currentPassword).toBeDefined();
+  });
+
+  it('throws PasswordValidationError when new password is too short', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await expect(
+      service.changePassword(1, 'secret123', 'Sh0!'),
+    ).rejects.toBeInstanceOf(PasswordValidationError);
+  });
+
+  it('throws PasswordValidationError when new password has no uppercase', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await expect(
+      service.changePassword(1, 'secret123', 'nouppercase1!'),
+    ).rejects.toBeInstanceOf(PasswordValidationError);
+  });
+
+  it('throws PasswordValidationError when new password has no lowercase', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await expect(
+      service.changePassword(1, 'secret123', 'NOLOWER1!'),
+    ).rejects.toBeInstanceOf(PasswordValidationError);
+  });
+
+  it('throws PasswordValidationError when new password has no digit', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await expect(
+      service.changePassword(1, 'secret123', 'NoDigitHere!'),
+    ).rejects.toBeInstanceOf(PasswordValidationError);
+  });
+
+  it('throws PasswordValidationError when new password has no special character', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await expect(
+      service.changePassword(1, 'secret123', 'NoSpecial1A'),
+    ).rejects.toBeInstanceOf(PasswordValidationError);
+  });
+
+  it('throws UnauthorizedError when user is not found', async () => {
+    mockUserRepo.findById.mockResolvedValue(null);
+
+    await expect(
+      service.changePassword(99, 'secret123', 'NewStr0ng!'),
+    ).rejects.toBeInstanceOf(UnauthorizedError);
+  });
+
+  it('does not call updatePassword when current password is incorrect', async () => {
+    mockUserRepo.findById.mockResolvedValue(recruiterUser);
+
+    await service.changePassword(1, 'wrongpass', 'NewStr0ng!').catch(() => undefined);
+
+    expect(mockUserRepo.updatePassword).not.toHaveBeenCalled();
   });
 });
 

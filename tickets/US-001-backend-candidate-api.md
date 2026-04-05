@@ -123,4 +123,3 @@
 - Validation, error handling, and security behavior match this specification.
 - All automated tests for this ticket are passing and wired into CI.
 - API documentation updated and shared with frontend developers.
-
